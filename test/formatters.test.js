@@ -3,8 +3,36 @@ import assert from "node:assert/strict";
 import {
   formatForecast,
   formatBusArrivals,
+  formatPlaces,
   haversineMetres,
 } from "../src/tools.js";
+
+test("formatPlaces reports whether each place is open now", () => {
+  const origin = { latitude: 1.3115, longitude: 103.8615 };
+  const places = [
+    {
+      displayName: { text: "Open Place" },
+      rating: 4.2,
+      location: origin,
+      currentOpeningHours: { openNow: true },
+    },
+    {
+      displayName: { text: "Closed Place" },
+      location: origin,
+      currentOpeningHours: { openNow: false },
+    },
+    { displayName: { text: "No Hours" }, location: origin },
+  ];
+
+  assert.deepEqual(
+    formatPlaces(places, origin).map(({ name, open_now }) => ({ name, open_now })),
+    [
+      { name: "Open Place", open_now: true },
+      { name: "Closed Place", open_now: false },
+      { name: "No Hours", open_now: null },
+    ],
+  );
+});
 
 test("formatForecast picks the requested area", () => {
   const payload = {
